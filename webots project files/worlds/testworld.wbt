@@ -1,0 +1,268 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  basicTimeStep 33
+  FPS 35
+  optimalThreadCount 4
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 0.1308902151143286 -0.9425962461591252 -0.307213392146323 3.6983376308754803
+  position 2.4780803278228025 4.656156550299654 -4.476098881594245
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 5 5
+  wallHeight 0.4
+}
+Robot {
+  translation 0.08789162143859316 0.03971225990162787 -0.2294414941664211
+  rotation -3.892017955534097e-08 0.9999999999999992 5.2248321970287165e-12 -3.1413189314003565
+  children [
+    Compass {
+    }
+    GPS {
+      translation 0 1 0
+    }
+    RangeFinder {
+      translation 0 1 0
+      rotation 0 1 0 -3.141592653589793
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.05 0.01
+          }
+        }
+      ]
+      fieldOfView 1.3
+      width 640
+      height 480
+      maxRange 10
+    }
+    Transform {
+      translation 0 1 0
+      rotation 0 1 0 3.1415926535
+      children [
+        Camera {
+          rotation 1 0 0 0
+          fieldOfView 1.3
+          width 640
+          height 480
+          near 0.002
+          far 100
+        }
+      ]
+    }
+    DEF BODY Shape {
+      appearance PBRAppearance {
+        baseColor 0.917647 0.145098 0.145098
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 0.05 0.2
+      }
+    }
+    DEF WHEEL1 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 735.7254781760694
+        anchor 0.06 0 0.05
+      }
+      device [
+        RotationalMotor {
+          name "wheel1"
+        }
+      ]
+      endPoint Solid {
+        translation 0.06 0 0.05
+        rotation -1 0 0 5.6903880711218315
+        children [
+          DEF WHEEL Transform {
+            rotation 0 0 1 1.5708
+            children [
+              Shape {
+                appearance PBRAppearance {
+                  baseColor 0.305882 0.898039 0.25098
+                  roughness 1
+                  metalness 0
+                }
+                geometry Cylinder {
+                  height 0.02
+                  radius 0.04
+                  subdivision 24
+                }
+              }
+            ]
+          }
+        ]
+        boundingObject USE WHEEL
+        physics Physics {
+        }
+        linearVelocity -6.582833558390427e-16 1.0775095307709391e-17 1.1873340247747752e-16
+        angularVelocity -1.4705683486319101e-15 6.871937279180349e-16 1.8658153066975582e-14
+      }
+    }
+    DEF WHEEL2 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 716.7333125071136
+        anchor -0.06 0 0.05
+      }
+      device [
+        RotationalMotor {
+          name "wheel2"
+        }
+      ]
+      endPoint Solid {
+        translation -0.06 0 0.05
+        rotation 1 0 0 0.4501874886407649
+        children [
+          USE WHEEL
+        ]
+        name "solid(1)"
+        boundingObject USE WHEEL
+        physics Physics {
+        }
+        linearVelocity -1.976260663737164e-16 5.172585177769586e-16 2.1427474704727937e-16
+        angularVelocity -1.1935461098165953e-15 6.867615716020835e-16 -2.41180579823087e-15
+      }
+    }
+    DEF WHEEL3 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 735.7255125448415
+        anchor 0.06 0 -0.05
+      }
+      device [
+        RotationalMotor {
+          name "wheel3"
+        }
+      ]
+      endPoint Solid {
+        translation 0.06 0 -0.05
+        rotation -1 0 0 5.690353702349669
+        children [
+          USE WHEEL
+        ]
+        name "solid(2)"
+        boundingObject USE WHEEL
+        physics Physics {
+        }
+        linearVelocity -7.370056393882685e-17 -3.1388742984279745e-17 -2.812819814063687e-16
+        angularVelocity -1.7525983455065136e-15 6.871923332376743e-16 -2.2575418833781434e-15
+      }
+    }
+    DEF WHEEL4 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 716.7333461749042
+        anchor -0.06 0 -0.05
+      }
+      device [
+        RotationalMotor {
+          name "wheel4"
+        }
+      ]
+      endPoint Solid {
+        translation -0.06 0 -0.05
+        rotation 1 0 0 0.4502211564313688
+        children [
+          USE WHEEL
+        ]
+        name "solid(3)"
+        boundingObject USE WHEEL
+        physics Physics {
+        }
+        linearVelocity -6.230634721829738e-16 -3.496030857235957e-16 -2.98430163753981e-16
+        angularVelocity -1.49288484472127e-15 6.867639887329712e-16 2.6905285291745147e-14
+      }
+    }
+    DEF DS_RIGHT DistanceSensor {
+      translation -0.03 0 0.1
+      rotation 0 1 0 -1.87079
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.184314 0.596078 0.847059
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      name "ds_right"
+    }
+    DEF DS_LEFT DistanceSensor {
+      translation 0.03 0 0.1
+      rotation 0 1 0 -1.27079
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.184314 0.596078 0.847059
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.01 0.01 0.01
+          }
+        }
+      ]
+      name "ds_left"
+    }
+  ]
+  name "robot(1)"
+  boundingObject USE BODY
+  physics Physics {
+    density -1
+    mass 1
+  }
+  controller "robot_controller"
+  linearVelocity -4.1967702025987424e-16 -5.861977570020827e-17 -2.298741938006373e-16
+  angularVelocity -2.0692734103450663e-15 6.872287221555211e-16 -1.7599523289932197e-15
+}
+Desk {
+  translation 6.96416 0 5.236
+  rotation 0 1 0 -1.57
+}
+Desk {
+  translation -2 4.68 0
+  rotation 0 1 0 1.57
+  name "desk(1)"
+}
+Desk {
+  translation 5.19 0 2
+  rotation 1 0 0 0.785398
+  name "desk(2)"
+}
+Desk {
+  translation 0 4.6 -2
+  name "desk(3)"
+}
+Can {
+  translation -2.19 0.06095697464227297 -4.423089874103648e-15
+  rotation 0.030813448231054263 -0.9988792383949973 -0.03592768447231511 1.679075429874711e-15
+}
+Pedestrian {
+  translation 1.29 0.44 3.30546e-07
+  rotation 0 1 0 -1.5707853071795865
+}
+Pedestrian {
+  translation -1.22 0.44 0.100029
+  rotation 0 1 0 1.57081
+  name "pedestrian(1)"
+}
+Pedestrian {
+  translation -0.069983 0.44 1.19002
+  rotation 0 1 0 -3.141575307179586
+  name "pedestrian(2)"
+}
+Pedestrian {
+  translation 0.0299722 0.44 -1.29998
+  rotation 0 1 0 1.73368e-05
+  name "pedestrian(3)"
+}
