@@ -121,10 +121,10 @@ def findTable_BestMatch(object_name, table_containers, model):
 #first value is table cood known
 
 tables = []
-tables.append(("table1", 0, 2.04))
-tables.append(("table2", -2.06, 0))
-tables.append(("table3", 0, -2.02))
-tables.append(("table4", 2.03, 0))
+tables.append(("table1", 0, 3))
+tables.append(("table2", -3, 0))
+tables.append(("table3", 0, -3))
+tables.append(("table4", 3, 0))
 
 objects = {}
 table1 = {}
@@ -151,7 +151,7 @@ while robot.step(timestep) != -1:
         cv2.imshow('detection', img)     
         
         #get cood of obj with origin as reference point
-        room_width = 5.
+        room_width = 8.
         map_res = 800.
         room_map = np.full((int(map_res),int(map_res),3), 255, dtype=np.uint8)
         draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0,  0, room_width, room_width)
@@ -256,8 +256,8 @@ while robot.step(timestep) != -1:
             print("table2", table2)
             print("table3", table3)
             print("table4", table4)
-          #  similarity, best_table = findTable_BestMatch("bottle", table_containers, model)
-          #  print("similarity, best_table", similarity, best_table)
+            similarity, best_table = findTable_BestMatch("bottle", table_containers, model)
+            print("similarity, best_table", similarity, best_table)
 
             #print("obj", objects)     
             #vector = model["laptop"] + model["keyboard"]     
