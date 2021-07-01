@@ -89,6 +89,30 @@ def draw_rectangle(image3, i_w, i_h, ratio, x, y, w, h, colour=(255,0,0)):
     cv2.line(image3, (brx,tly),(brx,bry),colour,3)
     
     
+def draw_map(roomWidth, mapRes, objects):
+
+    room_width = roomWidth
+    map_res = mapRes
+    room_map = np.full((int(map_res),int(map_res),3), 255, dtype=np.uint8)
+    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0,  0, room_width, room_width)
+    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  3,  0, 0.7, 3.2, (0,255,0))
+    draw_rectangle(room_map, map_res, map_res, map_res/room_width, -3,  0, 0.7, 3.2, (0,255,0))
+    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0,  3, 3.2, 0.7, (0,255,0))
+    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0, -3, 3.2, 0.7, (0,255,0))
+    
+    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  int(gps.getValues()[0]) , int(gps.getValues()[2]), 0.5, 0.5,  (255,255,255))
+    for obj in objects:
+        
+
+        draw_rectangle(room_map, map_res, map_res, map_res/room_width,   int(objects[obj][0]), int(objects[obj][1]), 0.5, 0.5,(255,255,0))
+    
+    cv2.namedWindow("test")
+
+    cv2.imshow("test", room_map)
+        
+        
+    
+    
 def y_rot_matrix(angle2):
     angle = -angle2
     ret = np.ndarray((3,3))
@@ -98,6 +122,9 @@ def y_rot_matrix(angle2):
     return ret
 
 def findTable_BestMatch(object_name, table_containers, model):
+#iterate through all objects in the tables and compare the similarity 
+#of the query object with object in the tables
+##return the highest similarity and best table (table where most similar obj was found)
     
     bestSimilarity = None
     best_table = None
@@ -116,9 +143,82 @@ def findTable_BestMatch(object_name, table_containers, model):
      
 
      
+def get_object_and_global_coordinate_from_detection(detection):
+
+    label = tokenize(detection[0])[0]   
+    bbox_x1 = detection[1]
+    bbox_y1 = detection[2]
+    bbox_x2 = detection[3]
+    bbox_y2 = detection[4]
+                
+                
+    #get position of object from robot perspective
+            
+    #find mid point on detection boxes, and get how far obj is from robot, this is the depth
+            
+    bbox_midCordinate = (bbox_x1 + bbox_x2)/2, (bbox_y1 + bbox_y2)/2
+    depth = rangeFinder.rangeImageGetDepth(rangeImage, rangeFinder.getWidth(), int(bbox_midCordinate[0]), int(bbox_midCordinate[1]))
+    #use trigonometry to find lateral length of the object
+    angle = (rangeFinder.getFov()*(bbox_midCordinate[0] - (rangeFinder.getWidth()/2))) /rangeFinder.getWidth()
+    lateralLength = math.sin(angle)*depth        
+            
+    #get homogeneous matrix of the robot from the world origin
+
+    robot_position = np.array([gps.getValues()[0], 0, gps.getValues()[2]])
+    robot_bearing_from_world = atan2(compass.getValues()[2], compass.getValues()[0])
+    robot_bearing_from_world_rotation_matrix = y_rot_matrix(-robot_bearing_from_world)
+          
+    object_position_from_robot = np.array([[-lateralLength], [0], [depth], [1]])
+
+    tm = TransformManager()
+    robot2world = pt.transform_from(robot_bearing_from_world_rotation_matrix, robot_position)
+    tm.add_transform('robot', 'world', robot2world)
+    final_transform = tm.get_transform('robot', 'world')
+         
+    object_position_from_world = final_transform @ object_position_from_robot
+    #formate to only include x and z cood oin final answer
+    object_position_from_world = [object_position_from_world[0] , object_position_from_world[2]]
+    #print(f'result:\n{object_position_from_world.transpose()}')
+
+    object = [label ,object_position_from_world]
+    
+    return object
+    
+def assign_object_to_table(object1):
+
+    object = object1
+    objects[object[0]] = object[1]
+    
+    shortest = 1500
+    for index in range(len(tables)):
+                
+        distance = math.sqrt((object[1][0] - tables[index][1])**2 + (object[1][1] - tables[index][2])**2)
+
+        if distance < shortest:
+            shortest = distance
+            table = tables[index][0]
+
+    if table == "table1":
+        table1[object[0]] = object[1]
+
+                  
+    if table == "table2":
+        table2[object[0]] = object[1]
+
+                    
+    if table == "table3":
+        table3[object[0]] = object[1]
+
+                   
+    if table == "table4":
+        table4[object[0]] = object[1]
+     
+    
+    return None
     
 
 #first value is table cood known
+objects = {}
 
 tables = []
 tables.append(("table1", 0, 3))
@@ -126,7 +226,6 @@ tables.append(("table2", -3, 0))
 tables.append(("table3", 0, -3))
 tables.append(("table4", 3, 0))
 
-objects = {}
 table1 = {}
 table2 = {}
 table3 = {}
@@ -137,155 +236,37 @@ while robot.step(timestep) != -1:
     ds = [x.getValue() for x in dss]
     if time.time()-last > 0.031:
         last = time.time()
-        labels = []
         
         
-        
-        image = np.frombuffer(cam.getImage(), np.uint8).reshape((480,640,4))
+        detections = []        
+
+        rgb_scene_image = np.frombuffer(cam.getImage(), np.uint8).reshape((480,640,4))
         rangeImage = rangeFinder.getRangeImage()
-        #for imshow  
-        image2 = np.asarray(rangeImage).reshape((480,640))
-        # cv2.imshow("range image", image2)
-        
-        img, x1, y1, x2, y2, labels =detect_image(yolo, image, "" , input_size=YOLO_INPUT_SIZE, show=False, rectangle_colors=(255,0,0))
-        cv2.imshow('detection', img)     
-        
-        #get cood of obj with origin as reference point
-        room_width = 8.
-        map_res = 800.
-        room_map = np.full((int(map_res),int(map_res),3), 255, dtype=np.uint8)
-        draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0,  0, room_width, room_width)
-        draw_rectangle(room_map, map_res, map_res, map_res/room_width,  2,  0, 0.7, 1.2, (0,255,0))
-        draw_rectangle(room_map, map_res, map_res, map_res/room_width, -2,  0, 0.7, 1.2, (0,255,0))
-        draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0,  2, 1.2, 0.7, (0,255,0))
-        draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0, -2, 1.2, 0.7, (0,255,0))
+        #img, x1, y1, x2, y2, detections = detect_image(yolo, rgb_scene_image, "" , input_size=YOLO_INPUT_SIZE, show=False, rectangle_colors=(255,0,0))
+        rbg_scene_image_with_detections, detections= detect_image(yolo, rgb_scene_image, "" , input_size=YOLO_INPUT_SIZE, show=False, rectangle_colors=(255,0,0))
+        cv2.imshow('Detections', rbg_scene_image_with_detections)     
         
         
-        
-        
-        for obj in range(len(labels)):
-            #if tokenize(labels[obj])[0] != 'person':
-             #   continue
-            if tokenize(labels[obj])[0] == "diningtable":
-                continue
-                
-            #if tokenize(labels[obj])[0] != "laptop":
+        for obj in range(len(detections)):
+            #if tokenize(detections[obj])[0] != "person":
              #   continue
             
-            #find mid point on boxes, and get how far obj is from robot (depth)
-            midCordinate = (x1[obj] + x2[obj])/2, (y1[obj] + y2[obj])/2
-            depth = rangeFinder.rangeImageGetDepth(rangeImage, rangeFinder.getWidth(), int(midCordinate[0]), int(midCordinate[1]))
-            #use trigonometry to find derived cood of obj
-            angle= rangeFinder.getFov()*(midCordinate[0] - (rangeFinder.getWidth()/2)) /rangeFinder.getWidth()
-            derivedCood= math.sin(angle)*depth
+            object = get_object_and_global_coordinate_from_detection(detections[obj])        
+            assign_object_to_table(object)
             
+            print(objects)
             
+            #draw_map(7, 800, objects)
             
+           # print("table1", table1)
+            #print("table2", table2)
+            #print("table3", table3)
+            #print("table4", table4)
             
-            
-           
-            
-            
+            #similarity, best_table = findTable_BestMatch("bottle", table_containers, model)
+            #print("similarity, best_table", similarity, best_table)
 
-           # print('###################################################################')            
-            #print(tokenize(labels[obj])[0])
-                        
-
-            robot_position = np.array([gps.getValues()[0], 0, gps.getValues()[2]])
-            #print(f'robot position):\n{robot_position}')
-            
-            point = np.array([[-derivedCood], [0], [depth], [1]])
-            #print(f'point (from robot):\n{point.transpose()}')
-
-            bearing = (0.*pi/180.)+atan2(compass.getValues()[2], compass.getValues()[0])
-            bearingRotMatrix = y_rot_matrix(-bearing)
-            #print(f'angle:\n{bearing}')
-
-            tm = TransformManager()
-            transform = pt.transform_from(bearingRotMatrix, robot_position)
-            
-            
-            # print(transform)
-            tm.add_transform('robot', 'world', transform)
-            final_transform = tm.get_transform('robot', 'world')
-            
-            #print(final_transform)
-            result = final_transform @ point
-            #print(result.astype(np.float))
-            #print(type(float(result[0])))
-            
-            shortest = 1500
-            for index in range(len(tables)):
-                
-                distance = math.sqrt((result[0] - tables[index][1])**2 + (result[2] - tables[index][2])**2)
-                #print("distance", distance)
-
-                if distance < shortest:
-                    shortest = distance
-                    table = tables[index][0]
-                    #print("shortest = " ,shortest)
-                
-            
-            
-           # print("table", table)
-            
-            if table == "table1":
-                    table1[tokenize(labels[obj])[0]] = {float(result[0]), float(result[2])}
-                    objects[tokenize(labels[obj])[0]] = {float(result[0]), float(result[2])}
-                    
-            if table == "table2":
-                   table2[tokenize(labels[obj])[0]] = {float(result[0]), float(result[2])}
-                   objects[tokenize(labels[obj])[0]] = {float(result[0]), float(result[2])}
-                    
-            if table == "table3":
-                    table3[tokenize(labels[obj])[0]] = {float(result[0]), float(result[2])}
-                    objects[tokenize(labels[obj])[0]] = {float(result[0]), float(result[2])}
-                    
-            if table == "table4":
-                    table4[tokenize(labels[obj])[0]] = {float(result[0]), float(result[2])}
-                    objects[tokenize(labels[obj])[0]] = {float(result[0]), float(result[2])}        
-            
-            #print("tables", tables)
-            #print(f'result:\n{result.transpose()}')
-            #print(distance)
-            
-             
-            #print("just ",model["laptop"])
-            
-            print("table1", table1)
-            print("table2", table2)
-            print("table3", table3)
-            print("table4", table4)
-            similarity, best_table = findTable_BestMatch("bottle", table_containers, model)
-            print("similarity, best_table", similarity, best_table)
-
-            #print("obj", objects)     
-            #vector = model["laptop"] + model["keyboard"]     
-            #vector = model["laptop"]
-            #for b in range(5):
-             #   vector = vector + model["laptop"]
-              #  print("addded  ",vector)
-                
-
-            
-
-            #print(f'result:\n{result.transpose()}')
-            #print('###################################################################')
-            
-            
-            #draw a map
-            
-            
-        
-       
-        #for v in objects.values():
-            #draw_rectangle(room_map, map_res, map_res, map_res/room_width,  tuple(v)[0], tuple(v)[1], 0.1, 0.1, (255,0,0))
-
-            
-       
-        #cv2.imshow("map", room_map)
-        
-        #findTable_BestMatch()
+          
         
         
         k = cv2.waitKey(1)

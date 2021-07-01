@@ -23,7 +23,7 @@ class RobotStateMachine(StateMachine):
         print("finding object")
         
     def on_back_to_spin(self):
-        print("no response, back to spining! ")
+        print("no response, back to spinning! ")
         
     def on_return_to_get_command(self):
         print("object found/notfound,  please enter another object to find")

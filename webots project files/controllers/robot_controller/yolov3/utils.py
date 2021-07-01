@@ -140,6 +140,8 @@ def draw_bbox(image, bboxes, CLASSES=YOLO_COCO_CLASSES, show_label=True, show_co
     cordY1 = []
     cordX2 = []
     cordY2 = []
+    
+    detections = []
     random.seed(0)
     random.shuffle(colors)
     random.seed(None)
@@ -182,6 +184,8 @@ def draw_bbox(image, bboxes, CLASSES=YOLO_COCO_CLASSES, show_label=True, show_co
             cv2.rectangle(image, (x1, y1), (x1 + text_width, y1 - text_height - baseline), bbox_color, thickness=cv2.FILLED)
             
             labels.append(label)
+            detections.append([label, x1, y1, x2, y2])
+           
             #print(labels)
             #print(label)
             # put text above rectangle
@@ -194,7 +198,9 @@ def draw_bbox(image, bboxes, CLASSES=YOLO_COCO_CLASSES, show_label=True, show_co
     #boxCoordinates = [cordX1, cordY1, cordX2, cordY2]
     #print ("baby cood", boxCoordinates)
     #print("cordx1 = ",cordX1)
-    return image, cordX1, cordY1, cordX2, cordY2, labels
+    
+    #return image, cordX1, cordY1, cordX2, cordY2, labels
+    return image, detections
 
 def bboxes_iou(boxes1, boxes2):
     boxes1 = np.array(boxes1)
@@ -296,7 +302,7 @@ def postprocess_boxes(pred_bbox, original_image, input_size, score_threshold):
     return np.concatenate([coors, scores[:, np.newaxis], classes[:, np.newaxis]], axis=-1)
 
 
-def detect_image(Yolo, image_path, output_path, input_size=416, show=False, CLASSES=YOLO_COCO_CLASSES, score_threshold=0.3, iou_threshold=0.45, rectangle_colors=''):
+def detect_image(Yolo, image_path, output_path, input_size=416, show=False, CLASSES=YOLO_COCO_CLASSES, score_threshold=0.7, iou_threshold=0.45, rectangle_colors=''):
 
    # original_image      = cv2.imread(image_path)
     original_image	 = image_path
@@ -322,8 +328,9 @@ def detect_image(Yolo, image_path, output_path, input_size=416, show=False, CLAS
     bboxes = postprocess_boxes(pred_bbox, original_image, input_size, score_threshold)
     bboxes = nms(bboxes, iou_threshold, method='nms')
     labels = []
-    image, x1, y1, x2, y2, labels = draw_bbox(original_image, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
-   #image, labels = draw_bbox(original_image, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
+    #image, x1, y1, x2, y2, labels = draw_bbox(original_image, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
+    image, detections = draw_bbox(original_image, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
+   
     # CreateXMLfile("XML_Detections", str(int(time.time())), original_image, bboxes, read_class_names(CLASSES))
     
 
@@ -336,8 +343,9 @@ def detect_image(Yolo, image_path, output_path, input_size=416, show=False, CLAS
         # To close the window after the required kill value was provided
         cv2.destroyAllWindows()
         
-    #return image, labels
-    return image, x1, y1, x2, y2, labels
+   
+    #return image, x1, y1, x2, y2, labels
+    return image, detections
 
 def Predict_bbox_mp(Frames_data, Predicted_data, Processing_times):
     gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -381,8 +389,9 @@ def postprocess_mp(Predicted_data, original_frames, Processed_frames, Processing
             
             bboxes = postprocess_boxes(pred_bbox, original_image, input_size, score_threshold)
             bboxes = nms(bboxes, iou_threshold, method='nms')
-            image, x1, y1, x2, y2 = draw_bbox(original_image, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
-            #image, label1 = draw_bbox(original_image, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
+            image, detections = draw_bbox(original_image, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
+            #image, x1, y1, x2, y2 = draw_bbox(original_image, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
+            
             times.append(time.time()-Processing_times.get())
             times = times[-20:]
             
