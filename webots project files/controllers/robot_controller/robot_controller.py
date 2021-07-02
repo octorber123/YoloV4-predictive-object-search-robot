@@ -23,6 +23,8 @@ from gensim.models import Word2Vec, KeyedVectors
 import pandas as dp
 import nltk
 
+#from CoordinateManager import *
+
 
 # create the Robot instance.
 robot = Robot()
@@ -73,11 +75,23 @@ def random_turn():
 def distance_to_speed(sensor_value):
     return (sensor_value - 500) / 100.
 
-def tokenize(text):   
-    return re.split('\s|(?<!\d)[,.](?!\d)', text.lower())
+def tokenize(text):
+    #DELIM = '[ \r\n\t0123456789;:.,/\(\)\"\'-]+'   
+    DELIM = '\s|(?<!\d)[,.](?!\d)'  
+    return re.split(DELIM, text.lower())
 
 
-def draw_rectangle(image3, i_w, i_h, ratio, x, y, w, h, colour=(255,0,0)):
+#def draw_rectangle(image3, i_w, i_h, ratio, x, y, w, h, colour=(255,0,0)):
+def draw_rectangle(image3, x, y, w, h, colour=(255,0,0)):
+    
+    map_res = 700
+    room_width = 7
+    
+    i_w = map_res
+    i_h = map_res
+    ratio = map_res/room_width
+    
+    
     tlx = int(ratio*(x-w/2.))+int(i_w/2)
     tly = int(ratio*(y-h/2.))+int(i_h/2)
     brx = int(ratio*(x+w/2.))+int(i_w/2)-1
@@ -89,26 +103,37 @@ def draw_rectangle(image3, i_w, i_h, ratio, x, y, w, h, colour=(255,0,0)):
     cv2.line(image3, (brx,tly),(brx,bry),colour,3)
     
     
-def draw_map(roomWidth, mapRes, objects):
-
-    room_width = roomWidth
-    map_res = mapRes
-    room_map = np.full((int(map_res),int(map_res),3), 255, dtype=np.uint8)
-    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0,  0, room_width, room_width)
-    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  3,  0, 0.7, 3.2, (0,255,0))
-    draw_rectangle(room_map, map_res, map_res, map_res/room_width, -3,  0, 0.7, 3.2, (0,255,0))
-    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0,  3, 3.2, 0.7, (0,255,0))
-    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  0, -3, 3.2, 0.7, (0,255,0))
     
-    draw_rectangle(room_map, map_res, map_res, map_res/room_width,  int(gps.getValues()[0]) , int(gps.getValues()[2]), 0.5, 0.5,  (255,255,255))
-    for obj in objects:
+    
+#def draw_map(roomWidth, mapRes, objects):
+def draw_map(objects):
+
+    room_width = 7
         
-
-        draw_rectangle(room_map, map_res, map_res, map_res/room_width,   int(objects[obj][0]), int(objects[obj][1]), 0.5, 0.5,(255,255,0))
+    draw_rectangle(  0,  0, room_width, room_width)
+    draw_rectangle(  3,  0, 0.7, 3.2, (0,255,0))
+    draw_rectangle( -3,  0, 0.7, 3.2, (0,255,0))
+    draw_rectangle(  0,  3, 3.2, 0.7, (0,255,0))
+    draw_rectangle(  0, -3, 3.2, 0.7, (0,255,0))
     
-    cv2.namedWindow("test")
-
-    cv2.imshow("test", room_map)
+    room_width = 7
+    map_res = 700
+    room_map = np.full((int(map_res),int(map_res),3), 255, dtype=np.uint8)
+        
+    draw_rectangle( room_map, 0,  0, room_width, room_width)
+    draw_rectangle( room_map, 3,  0, 0.7, 3.2, (0,255,0))
+    draw_rectangle( room_map,-3,  0, 0.7, 3.2, (0,255,0))
+    draw_rectangle( room_map, 0,  3, 3.2, 0.7, (0,255,0))
+    draw_rectangle( room_map, 0, -3, 3.2, 0.7, (0,255,0))
+ 
+    for obj in objects:
+           
+        draw_rectangle(room_map,int(objects[obj][0]), int(objects[obj][1]), 0.1, 0.1,(255,255,0))
+    
+        cv2.namedWindow("test")
+        cv2.imshow("test", room_map)
+    
+    
         
         
     
@@ -121,31 +146,40 @@ def y_rot_matrix(angle2):
     ret[2][0] = -sin(angle);    ret[2][1] = 0;    ret[2][2] = cos(angle)
     return ret
 
-def findTable_BestMatch(object_name, table_containers, model):
+def find_table_wtih_best_match(object_name, table_containers, model):
 #iterate through all objects in the tables and compare the similarity 
 #of the query object with object in the tables
 ##return the highest similarity and best table (table where most similar obj was found)
     
     bestSimilarity = None
-    best_table = None
+    #best_table = None
+    table_index = 1
     for table in table_containers:
-        for k in table:
-            similarity = model.similarity(k, object_name)
-            if bestSimilarity is None:
-                bestSimilarity = similarity
-                best_table = table
+        if(len(table) != 0):
+            for k in table:
+                try:
+                    similarity = model.similarity(k, object_name)
+                    if bestSimilarity is None:
+                        bestSimilarity = similarity
+                        #best_table = table
+                        best_table_index = table_index
+                    elif similarity > bestSimilarity:
+                        bestSimilarity = similarity
+                        #best_table = table
+                        best_table_index = table_index
+                          
+                except Exception:
+                    continue
+        table_index = table_index + 1        
     
-            elif similarity > bestSimilarity:
-                bestSimilarity = similarity
-                best_table = table
-            
-    return bestSimilarity, best_table
+    best_table = "table " + str(best_table_index)
+    return [bestSimilarity, best_table]
      
 
      
 def get_object_and_global_coordinate_from_detection(detection):
 
-    label = tokenize(detection[0])[0]   
+    label = tokenize(detection[0])[0]
     bbox_x1 = detection[1]
     bbox_y1 = detection[2]
     bbox_x2 = detection[3]
@@ -188,6 +222,7 @@ def assign_object_to_table(object1):
 
     object = object1
     objects[object[0]] = object[1]
+    #map_objects_to_draw[object[0]] = 
     
     shortest = 1500
     for index in range(len(tables)):
@@ -242,31 +277,23 @@ while robot.step(timestep) != -1:
 
         rgb_scene_image = np.frombuffer(cam.getImage(), np.uint8).reshape((480,640,4))
         rangeImage = rangeFinder.getRangeImage()
-        #img, x1, y1, x2, y2, detections = detect_image(yolo, rgb_scene_image, "" , input_size=YOLO_INPUT_SIZE, show=False, rectangle_colors=(255,0,0))
         rbg_scene_image_with_detections, detections= detect_image(yolo, rgb_scene_image, "" , input_size=YOLO_INPUT_SIZE, show=False, rectangle_colors=(255,0,0))
         cv2.imshow('Detections', rbg_scene_image_with_detections)     
         
         
         for obj in range(len(detections)):
-            #if tokenize(detections[obj])[0] != "person":
-             #   continue
-            
+
             object = get_object_and_global_coordinate_from_detection(detections[obj])        
             assign_object_to_table(object)
             
-            print(objects)
+            print("table1", table1)
+            print("table2", table2)
+            print("table3", table3)
+            print("table4", table4)
             
-            #draw_map(7, 800, objects)
-            
-           # print("table1", table1)
-            #print("table2", table2)
-            #print("table3", table3)
-            #print("table4", table4)
-            
-            #similarity, best_table = findTable_BestMatch("bottle", table_containers, model)
-            #print("similarity, best_table", similarity, best_table)
-
-          
+        best_table = find_table_wtih_best_match("horse", table_containers, model)
+        print("similarity, best_table", best_table)
+        
         
         
         k = cv2.waitKey(1)
