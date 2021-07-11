@@ -3,15 +3,15 @@ from statemachine import StateMachine, State
 class RobotStateMachine(StateMachine):
 
 #states of robot
-    spining = State('Spining', initial=True)
+    spinning = State('spinning', initial=True)
     awaiting_command = State('Awaiting Command')
     executing_command = State('Executing Command')
 
 #transitions between states
 
-    get_command = spining.to(awaiting_command)
+    get_command = spinning.to(awaiting_command)
     find_object = awaiting_command.to(executing_command)
-    back_to_spin = awaiting_command.to(spining)
+    back_to_spin = awaiting_command.to(spinning)
     return_to_get_command = executing_command.to(awaiting_command)
     
 #method for transitions
@@ -27,30 +27,35 @@ class RobotStateMachine(StateMachine):
         
     def on_return_to_get_command(self):
         print("object found/notfound,  please enter another object to find")
+    
+    def robot_state_manager(self):
+    
+    if(robot_state.is_spinning):
+    
+        print(spinning)
+        detections = [] 
+        objects = []  
 
-
+        detections = get_yolo_detections_from_camera()    
+        objects = get_object_and_global_coordinate_from_detection(detections)
+        assign_objects_to_tables(objects)
+        
+        draw_map()
+        
+        spin(5)
+        
+    if(robot_state.is_awaiting_command):
+        print(is_awaiting_command) 
+        best_table = find_table_wtih_best_match("horse", table_containers, model)
+        
+    if(robot_state.is_executing_command):
+        print(is_executing_command)
+        
+        
+    
 
     
-robot = RobotStateMachine()
-#print(robot.current_state)
 
-robot.get_command()
-#print(robot.current_state)
-
-robot.back_to_spin()
-#print(robot.current_state)
-
-robot.get_command()
-#print(robot.current_state)
-
-robot.find_object()
-#print(robot.current_state)
-
-robot.return_to_get_command()
-#print(robot.current_state)
-
-robot.back_to_spin()
-#print(robot.current_state)
 
 
 

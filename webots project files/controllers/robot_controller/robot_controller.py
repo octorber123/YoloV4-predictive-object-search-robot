@@ -23,7 +23,12 @@ from gensim.models import Word2Vec, KeyedVectors
 import pandas as dp
 import nltk
 
-#from CoordinateManager import *
+from CV2MiniMap import *
+#from RobotStateMachine import *
+
+from CoordinateManager import *
+
+from RobotNavigator import *
 
 
 # create the Robot instance.
@@ -34,8 +39,8 @@ model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', 
 # get the time step of the current world.
 timestep = int(robot.getBasicTimeStep())
 print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-# You should insert a getDevice-like function in order to get the
-# instance of a device of the robot. Something like:
+
+#initialise components of robot
 wheels = [robot.getDevice('wheel'+str(x+1)) for x in range(4)]
 for w in wheels:
     w.setPosition(float('inf'))
@@ -44,107 +49,54 @@ for w in wheels:
 dss = [robot.getDevice('ds_right'), robot.getDevice('ds_left')]
 for x in dss:
     x.enable(10)
+
+left_path_ir = robot.getDevice('path-following-IR-sensor-left')
+left_path_ir.enable(30)
+
+right_path_ir = robot.getDevice('path-following-IR-sensor-right')
+right_path_ir.enable(30)
+
 cam = robot.getDevice('camera')
 cam.enable(30)
+
 
 rangeFinder = robot.getDevice('range-finder')
 rangeFinder.enable(30)
 
-gps = robot.getDevice('gps')
-gps.enable(30)
+robot_gps = robot.getDevice('gps')
+robot_gps.enable(30)
 
 compass = robot.getDevice('compass')
 compass.enable(30)
 
 step = 0.0
-# Main loop:
-# - perform simulation steps until Webots is stopping the controller
+
 
 last = time.time()
 
-commands = [0. for x in range(4)]
+
+unfiltered_objects = {}
+filtered_objects = {}
 
 
-def random_turn():
-    speed = 0#(random.random()-0.5)*10.
-    time = random.random()*3.
-    print(speed, time)
-    return speed, time
-        
-    
-def distance_to_speed(sensor_value):
-    return (sensor_value - 500) / 100.
+tables = []
+tables.append(("table1", 0, 3))
+tables.append(("table2", -3, 0))
+tables.append(("table3", 0, -3))
+tables.append(("table4", 3, 0))
+
+
+table1 = {}
+table2 = {}
+table3 = {}
+table4 = {}
+
+table_containers = [table1, table2, table3, table4]
 
 def tokenize(text):
     #DELIM = '[ \r\n\t0123456789;:.,/\(\)\"\'-]+'   
     DELIM = '\s|(?<!\d)[,.](?!\d)'  
     return re.split(DELIM, text.lower())
-
-
-#def draw_rectangle(image3, i_w, i_h, ratio, x, y, w, h, colour=(255,0,0)):
-def draw_rectangle(image3, x, y, w, h, colour=(255,0,0)):
-    
-    map_res = 700
-    room_width = 7
-    
-    i_w = map_res
-    i_h = map_res
-    ratio = map_res/room_width
-    
-    
-    tlx = int(ratio*(x-w/2.))+int(i_w/2)
-    tly = int(ratio*(y-h/2.))+int(i_h/2)
-    brx = int(ratio*(x+w/2.))+int(i_w/2)-1
-    bry = int(ratio*(y+h/2.))+int(i_h/2)-1
- 
-    cv2.line(image3, (tlx,tly),(brx,tly),colour,3)
-    cv2.line(image3, (tlx,bry),(brx,bry),colour,3)
-    cv2.line(image3, (tlx,tly),(tlx,bry),colour,3)
-    cv2.line(image3, (brx,tly),(brx,bry),colour,3)
-    
-    
-    
-    
-#def draw_map(roomWidth, mapRes, objects):
-def draw_map(objects):
-
-    room_width = 7
-        
-    draw_rectangle(  0,  0, room_width, room_width)
-    draw_rectangle(  3,  0, 0.7, 3.2, (0,255,0))
-    draw_rectangle( -3,  0, 0.7, 3.2, (0,255,0))
-    draw_rectangle(  0,  3, 3.2, 0.7, (0,255,0))
-    draw_rectangle(  0, -3, 3.2, 0.7, (0,255,0))
-    
-    room_width = 7
-    map_res = 700
-    room_map = np.full((int(map_res),int(map_res),3), 255, dtype=np.uint8)
-        
-    draw_rectangle( room_map, 0,  0, room_width, room_width)
-    draw_rectangle( room_map, 3,  0, 0.7, 3.2, (0,255,0))
-    draw_rectangle( room_map,-3,  0, 0.7, 3.2, (0,255,0))
-    draw_rectangle( room_map, 0,  3, 3.2, 0.7, (0,255,0))
-    draw_rectangle( room_map, 0, -3, 3.2, 0.7, (0,255,0))
- 
-    for obj in objects:
-           
-        draw_rectangle(room_map,int(objects[obj][0]), int(objects[obj][1]), 0.1, 0.1,(255,255,0))
-    
-        cv2.namedWindow("test")
-        cv2.imshow("test", room_map)
-    
-    
-        
-        
-    
-    
-def y_rot_matrix(angle2):
-    angle = -angle2
-    ret = np.ndarray((3,3))
-    ret[0][0] =  cos(angle);    ret[0][1] = 0;    ret[0][2] = sin(angle)
-    ret[1][0] =           0;    ret[1][1] = 1;    ret[1][2] =          0
-    ret[2][0] = -sin(angle);    ret[2][1] = 0;    ret[2][2] = cos(angle)
-    return ret
 
 def find_table_wtih_best_match(object_name, table_containers, model):
 #iterate through all objects in the tables and compare the similarity 
@@ -152,10 +104,11 @@ def find_table_wtih_best_match(object_name, table_containers, model):
 ##return the highest similarity and best table (table where most similar obj was found)
     
     bestSimilarity = None
-    #best_table = None
+    tablesEmpty = True
     table_index = 1
     for table in table_containers:
         if(len(table) != 0):
+            tablesEmpty = False
             for k in table:
                 try:
                     similarity = model.similarity(k, object_name)
@@ -170,156 +123,164 @@ def find_table_wtih_best_match(object_name, table_containers, model):
                           
                 except Exception:
                     continue
-        table_index = table_index + 1        
-    
+        table_index = table_index + 1    
+        
+    if(tablesEmpty == True):
+        bestSimilarity = 0
+        best_table_index = None
     best_table = "table " + str(best_table_index)
+    
     return [bestSimilarity, best_table]
      
 
      
-def get_object_and_global_coordinate_from_detection(detection):
 
-    label = tokenize(detection[0])[0]
-    bbox_x1 = detection[1]
-    bbox_y1 = detection[2]
-    bbox_x2 = detection[3]
-    bbox_y2 = detection[4]
-                
-                
-    #get position of object from robot perspective
-            
-    #find mid point on detection boxes, and get how far obj is from robot, this is the depth
-            
-    bbox_midCordinate = (bbox_x1 + bbox_x2)/2, (bbox_y1 + bbox_y2)/2
-    depth = rangeFinder.rangeImageGetDepth(rangeImage, rangeFinder.getWidth(), int(bbox_midCordinate[0]), int(bbox_midCordinate[1]))
-    #use trigonometry to find lateral length of the object
-    angle = (rangeFinder.getFov()*(bbox_midCordinate[0] - (rangeFinder.getWidth()/2))) /rangeFinder.getWidth()
-    lateralLength = math.sin(angle)*depth        
-            
-    #get homogeneous matrix of the robot from the world origin
-
-    robot_position = np.array([gps.getValues()[0], 0, gps.getValues()[2]])
-    robot_bearing_from_world = atan2(compass.getValues()[2], compass.getValues()[0])
-    robot_bearing_from_world_rotation_matrix = y_rot_matrix(-robot_bearing_from_world)
-          
-    object_position_from_robot = np.array([[-lateralLength], [0], [depth], [1]])
-
-    tm = TransformManager()
-    robot2world = pt.transform_from(robot_bearing_from_world_rotation_matrix, robot_position)
-    tm.add_transform('robot', 'world', robot2world)
-    final_transform = tm.get_transform('robot', 'world')
-         
-    object_position_from_world = final_transform @ object_position_from_robot
-    #formate to only include x and z cood oin final answer
-    object_position_from_world = [object_position_from_world[0] , object_position_from_world[2]]
-    #print(f'result:\n{object_position_from_world.transpose()}')
-
-    object = [label ,object_position_from_world]
     
-    return object
     
-def assign_object_to_table(object1):
-
-    object = object1
-    objects[object[0]] = object[1]
-    #map_objects_to_draw[object[0]] = 
+def assign_objects_to_tables(objects):
     
-    shortest = 1500
-    for index in range(len(tables)):
-                
-        distance = math.sqrt((object[1][0] - tables[index][1])**2 + (object[1][1] - tables[index][2])**2)
-
-        if distance < shortest:
-            shortest = distance
-            table = tables[index][0]
-
-    if table == "table1":
-        table1[object[0]] = object[1]
-
-                  
-    if table == "table2":
-        table2[object[0]] = object[1]
-
-                    
-    if table == "table3":
-        table3[object[0]] = object[1]
-
-                   
-    if table == "table4":
-        table4[object[0]] = object[1]
+    
+    
+    for object in objects:
+           
+        shortest = 1500
+        for index in range(len(tables)):
+            distance = math.sqrt((objects[object][0] - tables[index][1])**2 + (objects[object][1] - tables[index][2])**2)
+    
+            if distance < shortest:
+                shortest = distance
+                table = tables[index][0]
+    
+        if table == "table1":
+            table1[object] = objects[object]
+    
+                      
+        if table == "table2":
+            table2[object] = objects[object]
+    
+                        
+        if table == "table3":
+            table3[object] = objects[object]
+    
+                       
+        if table == "table4":
+            table4[object] = objects[object]
      
     
     return None
     
+ 
+#turns detections on the yolo image
 
-#first value is table cood known
-objects = {}
+# detection = [label, bbox_x1 ,bbox_y1, bbox_x2, bbox_y2]
+def get_yolo_detections_from_camera():
 
-tables = []
-tables.append(("table1", 0, 3))
-tables.append(("table2", -3, 0))
-tables.append(("table3", 0, -3))
-tables.append(("table4", 3, 0))
+    detections = [] 
+    
+    rgb_scene_image = np.frombuffer(cam.getImage(), np.uint8).reshape((480,640,4))
+    rbg_scene_image_with_detections, detections= detect_image(yolo, rgb_scene_image, "" , input_size=YOLO_INPUT_SIZE, show=False, rectangle_colors=(255,0,0))
+    cv2.imshow('Detections', rbg_scene_image_with_detections)
+    
 
-table1 = {}
-table2 = {}
-table3 = {}
-table4 = {}
-table_containers = [table1, table2, table3, table4]
+    return detections
+    
+def go_to_object_table(table):
+    print("hello")
 
+    
+def robot_state_manager(self):
+    
+    if(robot_state.is_spinning):
+    
+        print(spinning)
+        detections = [] 
+        objects = []  
+
+        detections = get_yolo_detections_from_camera()    
+        objects = get_object_and_global_coordinate_from_detection(detections)
+        assign_objects_to_tables(objects)
+        
+        draw_map()
+        
+        spin(5)
+        
+    if(robot_state.is_awaiting_command):
+        print(is_awaiting_command) 
+        best_table = find_table_wtih_best_match("horse", table_containers, model)
+        
+    if(robot_state.is_executing_command):
+        print(is_executing_command)
+        
+        
+def filter_objects(objects, acceptance_count):
+
+    for object in objects:
+    
+        object_name  =  object[0]
+            
+        if(object_name in unfiltered_objects.keys()):
+        
+            count = unfiltered_objects[object_name][0] + 1
+            unfiltered_objects[object_name] = [count, object]
+        
+        if(object_name not in unfiltered_objects.keys()):
+            count = 1
+            unfiltered_objects[object_name] = [count, object]
+            
+    for object in unfiltered_objects:
+        
+        if(unfiltered_objects[object][0] >= acceptance_count):
+            filtered_objects[unfiltered_objects[object][1][0]] = unfiltered_objects[object][1][1]
+            
+    
+
+    
+        
 while robot.step(timestep) != -1:
     ds = [x.getValue() for x in dss]
     if time.time()-last > 0.031:
         last = time.time()
         
-        
-        detections = []        
 
-        rgb_scene_image = np.frombuffer(cam.getImage(), np.uint8).reshape((480,640,4))
-        rangeImage = rangeFinder.getRangeImage()
-        rbg_scene_image_with_detections, detections= detect_image(yolo, rgb_scene_image, "" , input_size=YOLO_INPUT_SIZE, show=False, rectangle_colors=(255,0,0))
-        cv2.imshow('Detections', rbg_scene_image_with_detections)     
-        
-        
-        for obj in range(len(detections)):
+        #robot_state = RobotStateMachine()
+        #print(robot_state.is_spinning)
+        detections = [] 
+        objects_with_local_coordinates = []
+        objects_with_global_coordinates = []  
 
-            object = get_object_and_global_coordinate_from_detection(detections[obj])        
-            assign_object_to_table(object)
+        detections = get_yolo_detections_from_camera()
+        #change name of range finder and compass
+        objects_with_local_coordinates = get_object_and_local_coordinate_from_detections(detections,rangeFinder) 
+        objects_with_global_coordinate = get_object_and_global_coordinate_from_local_coordinate(objects_with_local_coordinates, robot_gps, compass)
+        
+        #get normal results
+        #assign_objects_to_tables(objects)
+        
+        #to get filtered results
+        filter_objects(objects_with_global_coordinate, 5)
+        assign_objects_to_tables(filtered_objects)
+        
+        
+        draw_scene_map(table_containers, robot_gps)
+        #draw_map()
+        
+        print("table1", table1)
+        print("table2", table2)
+        print("table3", table3)
+        print("table4", table4)
+
+        cv2.waitKey(10)
+
             
-            print("table1", table1)
-            print("table2", table2)
-            print("table3", table3)
-            print("table4", table4)
+        follow_path(5,left_path_ir, right_path_ir, wheels)
             
-        best_table = find_table_wtih_best_match("horse", table_containers, model)
-        print("similarity, best_table", best_table)
+       # best_table = find_table_wtih_best_match("horse", table_containers, model)
+        #print("similarity, best_table", best_table)
+
         
         
         
-        k = cv2.waitKey(1)
-        wheel_speed = 9.
-        if k == 119 or k == 82:
-            for i in range(4):
-                wheels[i].setVelocity(wheel_speed)
-        elif k == 115 or k == 84:
-            for i in range(4):
-                wheels[i].setVelocity(-wheel_speed)
-        elif k == 100 or k == 83:
-            wheels[0].setVelocity(+wheel_speed)
-            wheels[1].setVelocity(-wheel_speed)
-            wheels[2].setVelocity(+wheel_speed)
-            wheels[3].setVelocity(-wheel_speed)
-        elif k == 97 or k == 81:
-            wheels[0].setVelocity(-wheel_speed)
-            wheels[1].setVelocity(+wheel_speed)
-            wheels[2].setVelocity(-wheel_speed)
-            wheels[3].setVelocity(+wheel_speed)
-        elif k == 27 or k == 113:
-            sys.exit(0)
-        elif k == -1:
-            for i in range(4):
-                wheels[i].setVelocity(0.0)
-        else:
-            print('key', k)
+        
+
 
 # Enter here exit cleanup code.
