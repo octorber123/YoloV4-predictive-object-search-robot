@@ -13,8 +13,8 @@ def get_object_and_local_coordinate_from_detections(detections, range_finder):
     """
     this method - calculates object position from perspective of robot.
 
-    :param detection   : a list containing the names of objects and coordiantes (top left and bottom right corner) of their bounding boxes
-    :param range_finder: is robot's range finder sensor
+    :param detection     : a list containing the names of objects and coordiantes (top left and bottom right corner) of their bounding boxes
+    :param range_finder  : is robot's range finder sensor
 
     :return: a list with object names , lateral lengths and their depths.
     """ 

@@ -1,7 +1,16 @@
 
-
-
 def follow_path(max_speed, path_ir_sensor_left, path_ir_sensor_right, wheels):
+    """
+    this method makes the robot follow a path
+
+    :param max_speed             : max turn speed
+    :param wheels                : the  motors of the robot
+    :param path_ir_sensor_left   : the infrared sensor facing on the groung for path detection on the left
+    :param path_ir_sensor_right  : the infrared sensor facing on the groung for path detection on the right
+    
+    
+    :return: None
+    """ 
     
     left_speed = max_speed
     right_speed = max_speed
@@ -24,6 +33,7 @@ def follow_path(max_speed, path_ir_sensor_left, path_ir_sensor_right, wheels):
     wheels[3].setVelocity(right_speed)
     
 def spin_on_spot(max_speed, wheels):
+
 
     left_speed = max_speed 
     right_speed = max_speed * 0.5

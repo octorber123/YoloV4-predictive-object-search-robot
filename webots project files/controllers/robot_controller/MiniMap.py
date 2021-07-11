@@ -5,12 +5,12 @@ import numpy as np
 def draw_scene_map(table_containers, robot_gps):
 
     """
-    draw_scene_map draws, room, robot , tables , and objects on tables
+    this method draws the room, robot , tables , and objects on tables
 
-    :param p1: contains list of tables and each table is has list of objects on them
-    :param p2: used to draw the robot in scene
+    :param table_containers  : contains list of tables and each table is has list of objects on them
+    :param robot_gps         : used to draw the robot in scene
     
-    :return: None
+    :output: displays mini map
     """ 
     
     room_width = 7
@@ -41,8 +41,19 @@ def draw_scene_map(table_containers, robot_gps):
     cv2.imshow("map", room_map)
     
 
-#draws rectangle in position (x,y) , size (w,h) and color, on image
 def draw_rectangle(image, x, y, w, h, colour=(255,0,0)):
+
+    """
+    this method draws a rectangle on an image
+    
+    :param image  : the image to draw rectangle on, should be as np array
+    :param x, y   : the position of rectangle on the of image
+    :param w      : the width of rectangle
+    :param h      : the height of rectangle
+    :param colour : the colour of rectangle
+    
+    :return: None
+    """ 
     
     map_res = 700
     room_width = 7
