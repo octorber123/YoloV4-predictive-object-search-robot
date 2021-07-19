@@ -65,16 +65,16 @@ def get_object_and_global_coordinate_from_local_coordinate(objects_with_local_co
         robot_position_in_world = np.array([robot_gps.getValues()[0], 0, robot_gps.getValues()[2]])
         robot_bearing_from_world = atan2(robot_compass.getValues()[2], robot_compass.getValues()[0])
         robot_bearing_from_world_rotation_matrix = y_rot_matrix(-robot_bearing_from_world)
-          
 
         tm = TransformManager()
         #get homogeneous matrix robot->world 
         robot2world = pt.transform_from(robot_bearing_from_world_rotation_matrix, robot_position_in_world)
+        
         tm.add_transform('robot', 'world', robot2world)
-        robot_to_world_homogenous_matrix = tm.get_transform('robot', 'world')
+        robot_to_world = tm.get_transform('robot', 'world')
     
         #multiply robot -> world homogenous matrix with local object coordinate to get glocal object coordinate
-        object_position_from_world = robot_to_world_homogenous_matrix @ object_position_from_robot
+        object_position_from_world = robot_to_world @ object_position_from_robot
         object_position_from_world = [object_position_from_world[0] , object_position_from_world[2]]
 
 
@@ -112,13 +112,13 @@ def get_object_and_global_coordinate_from_detections(detections, range_finder, r
           
 
         tm = TransformManager()
-        #get homogeneous matrix robot->world 
+        #get  matrix robot->world 
         robot2world = pt.transform_from(robot_bearing_from_world_rotation_matrix, robot_position_in_world)
         tm.add_transform('robot', 'world', robot2world)
-        robot_to_world_homogenous_matrix = tm.get_transform('robot', 'world')
+        robot_to_world_matrix = tm.get_transform('robot', 'world')
     
-        #multiply robot -> world homogenous matrix with local object coordinate to get glocal object coordinate
-        object_position_from_world = robot_to_world_homogenous_matrix @ object_position_from_robot
+        #multiply robot -> world  matrix with local object coordinate to get glocal object coordinate
+        object_position_from_world = robot_to_world_matrix @ object_position_from_robot
         object_position_from_world = [object_position_from_world[0] , object_position_from_world[2]]
     
         
@@ -126,6 +126,34 @@ def get_object_and_global_coordinate_from_detections(detections, range_finder, r
     
     return objects_with_global_cood
     
+def get_local_coordinate_of_point(point_position, robot_gps, robot_compass):
+        
+
+    point_position_from_world = np.array([[point_position[0]], [0], [point_position[1]], [1]])
+
+    robot_position_in_world = np.array([robot_gps.getValues()[0], 0, robot_gps.getValues()[2]])
+    robot_bearing_from_world = atan2(robot_compass.getValues()[2], robot_compass.getValues()[0])
+    robot_bearing_from_world_rotation_matrix = y_rot_matrix(-robot_bearing_from_world)
+          
+
+    tm = TransformManager()
+    #get  matrix robot->world 
+    robot2world = pt.transform_from(robot_bearing_from_world_rotation_matrix, robot_position_in_world)
+    tm.add_transform('robot', 'world', robot2world)
+    world_to_robot_matrix = tm.get_transform('world', 'robot')
+    
+    #multiply world -> robot matrix with global point coordinate to get local point coordinate
+    point_position_from_robot = world_to_robot_matrix @ point_position_from_world
+    point_position_from_robot = [point_position_from_robot[0] , point_position_from_robot[2]]
+    
+    return point_position_from_robot
+    
+def get_angle_of_point_from_robot(point_position):
+
+    angle = atan2(point_position[0],point_position[1]) 
+
+    return angle
+
     
 def tokenize(text):
     #DELIM = '[ \r\n\t0123456789;:.,/\(\)\"\'-]+'   

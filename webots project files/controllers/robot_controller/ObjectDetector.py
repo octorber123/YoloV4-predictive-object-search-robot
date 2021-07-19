@@ -43,6 +43,8 @@ def filter_detections(detections, acceptance_count):
     
        
         detection_name  =  tokenize(detection[0])[0]
+        if(detection_name == 'bench'):
+            continue
             
         if(detection_name in unfiltered_detections.keys()):
         
