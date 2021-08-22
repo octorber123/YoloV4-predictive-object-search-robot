@@ -11,11 +11,9 @@ from ObjectSearchManager import *
 from TableClusterManager import *
 from controller import Robot, RangeFinder
 
-print("hello")
 
 
 robot = Robot()
-print("dog")
 # get the time step of the current world.
 timestep = int(robot.getBasicTimeStep())
 step = 0.0
@@ -63,10 +61,17 @@ table4["table_pos"] = [3,0]
 table_containers = [table1, table2, table3, table4]
 robot_state_machine = RobotStateMachine()
 
+def two_dimentional_rot_matrix(angle2):
+    angle = -angle2
+    ret = np.ndarray((2,2))
+    ret[0][0] =  cos(angle);    ret[0][1] = -sin(angle);  
+    ret[1][0] =  sin(angle);    ret[1][1] =  cos(angle);    
+    return ret
+
+
 query = None 
 x = 0
-stopping_angle = None
-print("cow")        
+stopping_angle = None    
 while robot.step(timestep) != -1:
     ds = [x.getValue() for x in dss]
     if time.time()-last > 0.031:
@@ -74,7 +79,6 @@ while robot.step(timestep) != -1:
 
 
         robot_state_machine.action(table_containers, robot_camera, range_finder, robot_compass, robot_gps, robot_wheels)
-        #setSpeed(0, 6.2, robot_wheels)
 
         cv2.waitKey(10)
   
@@ -86,4 +90,3 @@ while robot.step(timestep) != -1:
         
 
 
-# Enter here exit cleanup code.

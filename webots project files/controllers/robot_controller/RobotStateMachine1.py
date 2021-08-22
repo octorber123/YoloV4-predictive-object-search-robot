@@ -93,10 +93,10 @@ class RobotStateMachine(StateMachine):
                 self.reached_destination()
 
         if self.is_inspecting_table :
-            #finished_spinning = self.spin_on_spot_once(robot_compass,robot_wheels)
-            finished_spinning = self.inspect_table(robot_compass,robot_wheels)
+            
+            finished_inspection = self.inspect_table(robot_compass,robot_wheels)
 
-            if finished_spinning == False:
+            if finished_inspection == False:
 
                 detections = get_yolo_detections_from_camera(robot_camera)
                 filtered_detections = filter_detections(detections, 5)
@@ -106,7 +106,7 @@ class RobotStateMachine(StateMachine):
 
                 assign_list_of_objects_to_tables(table_containers, objects_with_global_coordinate)
             
-            elif finished_spinning == True:
+            elif finished_inspection == True:
                 self.inspection_complete()
             
         if self.is_verifying_object_presence :

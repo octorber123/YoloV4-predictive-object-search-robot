@@ -9,92 +9,31 @@ model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', 
 def find_object_on_table(table, query_object):
     
     query_object = query_object.lower()
-    print(query_object)
     found = False
     for object in table:
         if object == query_object:
             found = True
     
     return found
-            
 
-def get_best_match_table3(query_object, table_containers):
-    """
-    finds the table with the object most similar to the query object. similarity check using word2vec
+def get_list_of_best_match_tables(query_object, table_containers):
 
-    :param query_object       : object to find
-    :param table_containers   : a list of tables, each table is a dictionay with object name and thier global coordinate
+    unordered_table_containers = table_containers.copy()
+
+    ordered_table_containers = []
+
+    while len(unordered_table_containers) != 0:
+
+        table, table_index = get_best_match_table_with_table_index(query_object, unordered_table_containers)
+        if(table == None and table_index == None):
+            ordered_table_containers = ordered_table_containers + unordered_table_containers
+            unordered_table_containers.clear()
+        else :
+            ordered_table_containers.append(table)
+            unordered_table_containers.pop(table_index)
     
-    :return: the best similarity and best table
-    """ 
+    return ordered_table_containers
 
-    
-    bestSimilarity = None
-
-    table_index = 1
-    for table in table_containers:
-        for object in list(table.keys())[1:]:
-            try:
-                similarity = model.similarity(object, query_object)
-                
-                if (bestSimilarity is None or similarity > bestSimilarity):
-                    bestSimilarity = similarity
-                    best_table_index = table_index
-     
-            except Exception:
-                continue
-        table_index = table_index + 1    
-        
-    if(bestSimilarity == None):
-        bestSimilarity = None
-        best_table_index = None
-        
-        
-    best_table = "table " + str(best_table_index)
-    
-
-    return [bestSimilarity, best_table]
-
-
-def get_best_match_table_position(query_object, table_containers):
-    """
-    finds the table with the object most similar to the query object. similarity check using word2vec
-
-    :param query_object       : object to find
-    :param table_containers   : a list of tables, each table is a dictionay with object name and thier global coordinate
-    
-    :return: the best similarity and best table
-    """ 
-
-    
-    bestSimilarity = None
-    best_table_index = None
-    table_index = 1
-
-    for table in table_containers:
-        for object in list(table.keys())[1:]:
-            try:
-                similarity = model.similarity(object, query_object)
-                
-                if (bestSimilarity is None or similarity > bestSimilarity):
-                    bestSimilarity = similarity
-                    best_table_index = table_index
-     
-            except Exception:
-                continue
-        table_index = table_index + 1  
-
-    if best_table_index != None:
-            best_table = table_containers[(best_table_index-1)]
-            best_table = best_table["table_pos"]
-    else: 
-        best_table = None
-
-
-    print(best_table)
-    
-
-    return best_table
 
 def get_best_match_table(query_object, table_containers):
     """
@@ -103,7 +42,7 @@ def get_best_match_table(query_object, table_containers):
     :param query_object       : object to find
     :param table_containers   : a list of tables, each table is a dictionay with object name and thier global coordinate
     
-    :return: the best similarity and best table
+    :return: the best table and its positon
     """ 
 
     
@@ -126,49 +65,46 @@ def get_best_match_table(query_object, table_containers):
 
     if best_table_index != None:
             best_table = table_containers[(best_table_index-1)]
-            
     else: 
-        best_table = None
-
-
-    print(best_table)
-    
+        best_table = None  
 
     return best_table
-def find_table_wtih_best_match_ordered_list(query_object, table_containers):
 
-    table_containers = table_containers
-    best_tables_list = []
-    master_index = 1
-    while master_index != len(table_containers):
+def get_best_match_table_with_table_index(query_object, table_containers):
+    """
+    finds the table with the object most similar to the query object. similarity check using word2vec
 
-        print(master_index)
-        bestSimilarity = None
-        best_table_index = None
+    :param query_object       : object to find
+    :param table_containers   : a list of tables, each table is a dictionay with object name and thier global coordinate
+    
+    :return: the best table and its positon
+    """ 
 
-        table_index = 1
-        for table in table_containers:
-            for object in list(table.keys())[1:]:
-                try:
-                    similarity = model.similarity(object, query_object)
-                    
-                    if (bestSimilarity is None or similarity > bestSimilarity):
-                        bestSimilarity = similarity
-                        best_table_index = table_index
-        
-                except Exception:
-                    continue
-            table_index = table_index + 1    
+    
+    bestSimilarity = None
+    best_table_index = None
+    table_index = 0
 
-        if best_table_index != None:
-            best_table = table_containers[(best_table_index-1)]
-            best_tables_list.append(best_table)
-            print("remove " , best_table_index-1)
-            table_containers.remove(best_table_index-1)
+    for table in table_containers:
+        for object in list(table.keys())[1:]:
+            try:
+                similarity = model.similarity(object, query_object)
+                
+                if (bestSimilarity is None or similarity > bestSimilarity):
+                    bestSimilarity = similarity
+                    best_table_index = table_index
+     
+            except Exception:
+                continue
+        table_index = table_index + 1  
 
-        master_index = master_index + 1
+    if best_table_index != None:
+            best_table = table_containers[(best_table_index)]
+    else: 
+        best_table = None  
 
-    return best_tables_list
+    return best_table, best_table_index
+
 
 def tokenize(text):   
     DELIM = '\s|(?<!\d)[,.](?!\d)'  

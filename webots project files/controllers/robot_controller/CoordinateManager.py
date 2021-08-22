@@ -1,4 +1,5 @@
 import re
+import cv2
 import math
 import numpy as np
 
@@ -30,6 +31,11 @@ def get_object_and_local_coordinate_from_detections(detections, range_finder):
         bbox_midCordinate = (bbox_x1 + bbox_x2)/2, (bbox_y1 + bbox_y2)/2
     
         range_image = range_finder.getRangeImage()
+        #image2 = np.asarray(range_finder.getRangeImage()).reshape((480,640))
+        #cv2.imshow("range image", image2/20)
+       
+        
+
         depth = range_finder.rangeImageGetDepth(range_image, range_finder.getWidth(), int(bbox_midCordinate[0]), int(bbox_midCordinate[1]))
     
         #use trigonometry to find lateral length of the object
