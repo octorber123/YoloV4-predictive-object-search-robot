@@ -40,7 +40,7 @@ After that the robot will inspect the tables in the path. If it finds the object
 This section gives a detailed overview of the steps the robot takes to find a queried object. if you haven’t done so already, please watch the video above before reading this section. It may help you in understanding it.
 The UML state machine diagram below shows the states the robot enters to find an object.
 
-![](uml_diagrams/robot%20state%20machine%20diagram.png)
+![](uml_diagrams/robot%20state%20machine.png)
 
 * * Figure is a UML state machine diagram that shows all the states of the robot
 
