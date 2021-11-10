@@ -39,11 +39,17 @@ After that the robot will inspect the tables in the path. If it finds the object
 ## An understanding of the steps the robot takes to find an unseen object (Detailed).
 This section gives a detailed overview of the steps the robot takes to find a queried object. if you haven’t done so already, please watch the video above before reading this section. It may help you in understanding it.
 The UML state machine diagram below shows the states the robot enters to find an object.
-  
-Figure showing a UML state machine diagram that shows all the states of the robot
+
+![](uml_diagrams/robot%20state%20machine%20diagram.png)
+
+* * Figure is a UML state machine diagram that shows all the states of the robot
+
 The robot consists of 6 states. These states have been described in the following UML activity diagram to see easily what methods are involved in each state. It has been created so it can be followed as the steps below are read.
+
+![](uml_diagrams/robot%20uml%20diagram.png)
  
-Figure shows a UML activity diagram which illustrates the functions involved in each state of the robot
+* * Figure shows a UML activity diagram which illustrates the functions involved in each state of the robot
+
 The state machine starts in initial spinning state, in which the robot notices objects in the room. This step is important so that the robot can compare any object it is queried to find with objects it has seen. In this state, the robot spins on the spot, in the centre of the room. Where it uses YoloV3 on the camera input, to get detections of the objects in the scene. Since YoloV3 has a likelihood of getting false predictions, the detections are filtered. For each object the robot detects, it calculates the global coordinate of it, so that it can be approached by the robot later in the state machine. Also, the robot clusters the objects that are most similar in function together. since the objects on each of the tables are similar to each other. A cluster is made of those objects. After this process we get 4 clusters, an office items cluster, food, sports, and animal clusters. (Why cluster? See answer [1] in questions section below).
 
 Once the robot has completed one rotation, the spinning state ends and the robot transitions to the awaiting commands state. In this state, the user is prompted to input, on the keyboard, an object to find. Once the input has been received the robot transitions to the processing command state
