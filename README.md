@@ -1,4 +1,4 @@
-# YoloV3-predictive-object-search-robot
+# YoloV4-predictive-object-search-robot
 
 ### Note: informal writing
 If you are interested in a formal paper, please send me a request on this page.
