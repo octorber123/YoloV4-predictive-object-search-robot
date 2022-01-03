@@ -1,6 +1,7 @@
 # YoloV4-predictive-object-search-robot
 
-### Note: informal writing
+### Note: informal writing for non technical audiences
+The following has been altered to improve readiblity for a non technical auidence.
 If you are interested in a formal paper, please send me a request on this page.
 
 ## What is a predictive object search robot and why is it important?
@@ -8,7 +9,7 @@ Ever been on the sofa and felt too comfy to get a cold soda from the fridge? Eve
 
 #### Sounds good, what is it? 
 
-This project presents a predictive object search robot, that can quickly find, never before seen objects in the home environment by hypothesizing their location. How you may ask? Well, it achieves this by using a model that exploits patterns seen in the home environment. Hasn’t someone done this before? Yes and no. Most object finding/retrieval robots require a structured environment to operate. This means that they must know the exact location of objects beforehand, and the objects must be placed in an easy-to-pick formation. Both these requirements are not practical in a home. if we were to use such current state-of-the-art machines to find/retrieve objects in the home, they would be unable to find/retrieve the object, in suitable time. 
+This project presents a predictive object search robot, that can quickly find, never before seen objects in the home environment by prediciting their location. How you may ask? Well, it achieves this by using a model that exploits patterns seen in the home environment. Hasn’t someone done this before? Yes and no. Most object finding/retrieval robots require a structured environment to operate. This means that they must know the exact location of objects beforehand, and the objects must be placed in an easy-to-pick formation. Both these requirements are not practical in a home. if we were to use such current state-of-the-art machines to find/retrieve objects in the home, they would be unable to find/retrieve the object, in suitable time. 
 
 #### Before I see/read your work, is your method even tested on real robots?
 
