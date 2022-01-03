@@ -4,13 +4,13 @@
 If you are interested in a formal paper, please send me a request on this page.
 
 ## What is a predictive object search robot and why is it important?
-Ever felt so comfy on the sofa/bed and desired a cold cup of water/soda but too comfy get one? Ever wanted to find that remote you lost which you replaced with one from amazon? Well, look no further than the predictive object search robot! its here to make your life, lazier, i mean easier!
+Ever been on the sofa and felt too comfy to get a cold soda from the fridge? Ever dreamt about a robot that could get you anything and do chores around the house? Well, look no further than the predictive object search robot! Its here to make your life lazier! I mean easier!
 
-Sounds good, what is it? 
+#### Sounds good, what is it? 
 
 This project presents a predictive object search robot, that can quickly find, never before seen objects in the home environment by hypothesizing their location. How you may ask? Well, it achieves this by using a model that exploits patterns seen in the home environment. Hasn’t someone done this before? Yes and no. Most object finding/retrieval robots require a structured environment to operate. This means that they must know the exact location of objects beforehand, and the objects must be placed in an easy-to-pick formation. Both these requirements are not practical in a home. if we were to use such current state-of-the-art machines to find/retrieve objects in the home, they would be unable to find/retrieve the object, in suitable time. 
 
-Before I see/read your work, is your method even tested on real robots?
+#### Before I see/read your work, is your method even tested on real robots?
 
 Yes, it has! This project is a recreation of the work done in the papers below. The system presented here was created independently, but the same idea was implemented. From both the papers the esteemed computer scientists showed that this system exceled compared to current state of the art solutions. These results were obtained by implementing the system on high end robots.
 
@@ -64,9 +64,11 @@ In this state, it checks if the queried object is present on that table the robo
 This concludes the detailed description of the steps the robot takes to find a seen/unseen object. If you have any questions please send me a message on GitHub 😊. 
 
 #### Questions:
-[1]	Why clustering objects? Well, it reduces the number of times a robot needs to approach an object to verify it. when the robot sees an object from afar, it will try to recognise it but it won’t be 100%, therefore the robot needs to approach the object to see the object clearly and ensure that the object actually exists. if we had a knife, spoon and a fork on a table next to each other. Without a cluster, the robot would have to go to each of the items individually to verify them. However, if they are clustered the robot can come to a location, where it can verify all the objects in the cluster.
+##### [1]	Why clustering objects? 
+Well, it reduces the number of times a robot needs to approach an object to verify it. when the robot sees an object from afar, it will try to recognise it but it won’t be 100%, therefore the robot needs to approach the object to see the object clearly and ensure that the object actually exists. if we had a knife, spoon and a fork on a table next to each other. Without a cluster, the robot would have to go to each of the items individually to verify them. However, if they are clustered the robot can come to a location, where it can verify all the objects in the cluster.
 
-[2]	In processing command state, why does the robot return a list of similar tables and not similar objects? As said in [1], the tables represent a cluster of similar objects. So the robot only has to go to one location to observe all the objects in the table (cluster). If the robot were to approach and check every object individually it would take too long and become infeasible to use the robot.
+##### [2]	In processing command state, why does the robot return a list of similar tables and not similar objects?
+As said in [1], the tables represent a cluster of similar objects. So the robot only has to go to one location to observe all the objects in the table (cluster). If the robot were to approach and check every object individually it would take too long and become infeasible to use the robot.
 
 ## So, what are the plans for the future?
 Well as you saw in the video or read the result, the robot does work well, and is able to find most the objects on its first attempt. However, for it to end up in your home, a lot of development needs to be done on all aspect of the robot so it can work safely at home with your family.
