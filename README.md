@@ -4,7 +4,7 @@
 If you are interested in a formal paper, please send me a request on this page.
 
 ## What is a predictive object search robot and why is it important?
-Ever felt so comfy on the sofa/bed and desired a cold cup of water/soda but couldn’t be bothered to get one? Ever wanted to find the remote that has been missing for the past 2 weeks, but u couldn’t be bothered to find it, so u bought another one from amazon? Well, look no further than the predictive object search robot! its here to make your life, lazier, easier!
+Ever felt so comfy on the sofa/bed and desired a cold cup of water/soda but too comfy get one? Ever wanted to find that remote you lost which you replaced with one from amazon? Well, look no further than the predictive object search robot! its here to make your life, lazier, i mean easier!
 
 Sounds good, what is it? 
 
