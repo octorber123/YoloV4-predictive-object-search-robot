@@ -1,6 +1,6 @@
 # YoloV3-predictive-object-search-robot
 
-#### Note: informal writing
+### Note: informal writing
 If you are interested in a formal paper, please send me a request on this page.
 
 ## What is a predictive object search robot and why is it important?
