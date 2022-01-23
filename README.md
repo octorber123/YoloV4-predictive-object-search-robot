@@ -5,7 +5,7 @@ The following has been altered to improve readiblity for a non technical auidenc
 If you are interested in a formal paper, please send me a request on this page.
 
 ## What is a predictive object search robot and why is it important?
-Ever been on the sofa and felt too comfy to get a cold soda from the fridge? Ever dreamt about a robot that could get you anything and do chores around the house? Well, look no further than the predictive object search robot! Its here to make your life lazier! I mean easier!
+Ever dreamt about a robot that could get you anything and do chores around the house? Well, look no further than the predictive object search robot! Its here to make your life easier!
 
 #### Sounds good, what is it? 
 
