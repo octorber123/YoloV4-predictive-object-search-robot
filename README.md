@@ -1,4 +1,5 @@
 # YoloV4-predictive-object-search-robot
+[![Watch the video](https://img.youtube.com/vi/qvZetLU_1LA/maxresdefault.jpg)](https://youtu.be/qvZetLU_1LA)
 
 ### Note: informal writing for non technical audiences
 The following has been altered to improve readiblity for a non technical auidence.
@@ -24,6 +25,7 @@ For the robot to find seen/unseen objects in the home, it needs two things. Firs
 One such pattern, observed was, that as humans we tend to cluster objects of similar function together, for example, toys will be near other toys, cooking tools in the kitchen will be near other cooking tools, etc. this pattern can be used by the robot to find unseen objects. How….? Well, if the robot had seen a spoon and a bicycle, and I were to tell it to find me a fork. It would first search near the knife since it is more similar to a fork then a bicycle. So essentially, it will go to the kitchen rather than the garage to find a fork. That’s the basic idea. 
 
 ## Lets see if it works!
+[![Watch the video](https://img.youtube.com/vi/qvZetLU_1LA/maxresdefault.jpg)](https://youtu.be/qvZetLU_1LA)
 To test if the robot can find unseen objects, the robot will be placed in the centre of a room surrounded by four tables. Each table will contain similar functioning items. For example, we will have a food table, office table, garage/sport table and lastly an animal table. for the test we will instruct the robot to find a sports-ball. The outcome we want is the robot to approach the sports table first to search for the ball. Check the video, to see if we achieved this outcome!
 
 (coming soon)
