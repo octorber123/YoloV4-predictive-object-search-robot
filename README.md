@@ -28,10 +28,10 @@ One such pattern, observed was, that as humans we tend to cluster objects of sim
 ## Lets see if it works!
 ### Video:
 [![Watch the video](https://img.youtube.com/vi/qvZetLU_1LA/maxresdefault.jpg)](https://youtu.be/qvZetLU_1LA)
-To test if the robot can find unseen objects, the robot will be placed in the centre of a room surrounded by four tables. Each table will contain similar functioning items. For example, we will have a food table, office table, garage/sport table and lastly an animal table. for the test we will instruct the robot to find a sports-ball. The outcome we want is the robot to approach the sports table first to search for the ball. Check the video, to see if we achieved this outcome!
+To test if the robot can find unseen objects, the robot will be placed in the centre of a room surrounded by four tables. Each table will contain similar functioning items. For example, we will have a food table, office table, garage/sport table and lastly an animal table. for the test we will instruct the robot to find a cat. The outcome we want is the robot to approach the animals table first to search for the cat. Check the video, to see if we achieved this outcome!
 
 (coming soon)
-if you saw the video, you saw the robot first approached the sports table to search for the ball. Great we achieved the expected outcome! (more concrete scientific evidence can be found in the 2 papers mentioned above).
+if you saw the video, you saw the robot first approached the animal's table to search for the cat. Great we achieved the expected outcome! (more concrete scientific evidence can be found in the 2 papers mentioned above).
 
 ## An understanding of the steps the robot takes to find an unseen object (Brief).
 This section doesn’t explain the steps taken by the robot with an example, this may make it difficult to understand. I suggest you watch the video above which will go through all the steps and then to read this brief and next detailed section.
