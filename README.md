@@ -1,4 +1,4 @@
-# YoloV4-predictive-object-search-robot
+# AI-Driven-Object-Detection-Robot-YoloV4-Word2Vec
 ### Video! (please click on the image) :
 [![Watch the video](https://img.youtube.com/vi/qvZetLU_1LA/maxresdefault.jpg)](https://youtu.be/qvZetLU_1LA)
 
