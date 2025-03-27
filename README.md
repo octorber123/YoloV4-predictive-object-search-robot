@@ -1,4 +1,4 @@
-# AI-Driven(YoloV4)-Object-Detection-Robot--Word2Vec
+# AI-Driven(YoloV4)-Object-Search-Robot-Word2Vec
 ### Video! (please click on the image) :
 [![Watch the video](https://img.youtube.com/vi/qvZetLU_1LA/maxresdefault.jpg)](https://youtu.be/qvZetLU_1LA)
 
@@ -6,12 +6,12 @@
 The following has been altered to improve readiblity for a non technical auidence.
 If you are interested in a formal paper, please send me a request on this page.
 
-## What is a predictive object search robot and why is it important?
-Ever dreamt about a robot that could get you anything and do chores around the house? Well, look no further than the predictive object search robot! Its here to make your life easier!
+## What is an AI Driven(YoloV4) Object Search Robot and why is it important?
+Ever dreamt about a robot that could get you anything and do chores around the house? Well, look no further than the AI Driven(YoloV4) Object Search Robott! Its here to make your life easier!
 
 #### Sounds good, what is it? 
 
-This project presents a predictive object search robot, that can quickly find, never before seen objects in the home environment by prediciting their location. How you may ask? Well, it achieves this by using a model that exploits patterns seen in the home environment. Hasn’t someone done this before? Yes and no. Most object finding/retrieval robots require a structured environment to operate. This means that they must know the exact location of objects beforehand, and the objects must be placed in an easy-to-pick formation. Both these requirements are not practical in a home. if we were to use such current state-of-the-art machines to find/retrieve objects in the home, they would be unable to find/retrieve the object, in suitable time. 
+This project presents a AI Driven(YoloV4) Object Search Robot, that can quickly find, never before seen objects in the home environment by prediciting their location. How you may ask? Well, it achieves this by using a model that exploits patterns seen in the home environment. Hasn’t someone done this before? Yes and no. Most object finding/retrieval robots require a structured environment to operate. This means that they must know the exact location of objects beforehand, and the objects must be placed in an easy-to-pick formation. Both these requirements are not practical in a home. if we were to use such current state-of-the-art machines to find/retrieve objects in the home, they would be unable to find/retrieve the object, in suitable time. 
 
 #### Before I see/read your work, is your method even tested on real robots?
 
