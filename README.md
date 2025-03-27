@@ -1,4 +1,4 @@
-# AI-Driven(YoloV4)-Object-Search-Robot-Word2Vec
+# AI-Driven(YoloV4)-Object-Search-Robot (Word2Vec)
 ### Video! (please click on the image) :
 [![Watch the video](https://img.youtube.com/vi/qvZetLU_1LA/maxresdefault.jpg)](https://youtu.be/qvZetLU_1LA)
 
